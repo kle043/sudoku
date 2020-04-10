@@ -97,6 +97,8 @@ function run(states, indices, temp, random_ramp_temperature)
 
         if count%random_ramp_temperature == 0
             temp = rand()*rand(1:4)
+        end
+        if count%100000==0
             println("Energy: $(state.energy)")
             println("Temperature: $temp")
             println("Move nr: $count")
