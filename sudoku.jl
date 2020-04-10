@@ -117,12 +117,12 @@ function run(states, indices, temp, random_ramp_temperature)
     return state
 end
 
-function mc_solve(puzzle, temp, random_ramp_temperature)
+function mc_solve(puzzle::Matrix, temp::Real, random_ramp_temperature::Int)
     states = []
     indices = get_indices(puzzle)
     push!(states, get_state(puzzle, indices))
     push!(states, initialize_board(puzzle, indices))
-    state = run(states, indices, temp)
+    state = run(states, indices, temp, random_ramp_temperature)
 
     return states
     
