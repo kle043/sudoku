@@ -89,15 +89,17 @@ function random_block_swap(puzzle, indices)
     return puzzle
 end
 
-function run(states, indices, temp)
+function run(states, indices, temp, random_ramp_temperature)
     state = states[end]
     count = 0
     while (state.energy>0)
         count += 1
 
-        if count%100 == 0
-            temp = rand()*rand(1:3)
-            println("Changing temperature to $temp")
+        if count%random_ramp_temperature == 0
+            temp = rand()*rand(1:4)
+            println("Energy: $(state.energy)")
+            println("Temperature: $temp")
+            println("Move nr: $count")
         end
         puzzle = random_block_swap(state.puzzle, indices)
         new_state = get_state(puzzle, indices)
@@ -107,14 +109,15 @@ function run(states, indices, temp)
         if MathConstants.e^(-energy_diff/temp) > rand() || energy_diff <= 0
             push!(states, new_state)
             state = new_state
-            println("Energy: $(state.energy)")
+            #println("Energy: $(state.energy)")
         end
     end
-    
+    println("Energy: $(state.energy)")
+    println("Finished on move nr: $count")
     return state
 end
 
-function mc_solve(puzzle, temp)
+function mc_solve(puzzle, temp, random_ramp_temperature)
     states = []
     indices = get_indices(puzzle)
     push!(states, get_state(puzzle, indices))
