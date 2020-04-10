@@ -1,6 +1,117 @@
 # Importing packages
-using JuMP, Gurobi, Distributions
 
+
+struct SudokuState
+    puzzle::Array
+    energy::Number
+end
+
+struct Indices
+    blocks::Array
+    columns::Array
+    rows::Array
+    free_cells_pr_block::Dict
+    fixed_numbers_pr_block::Dict
+end
+
+function  get_indices(puzzle)
+    blocks = []
+    columns = []
+    rows = []
+    free_cells_pr_block = Dict()
+    fixed_numbers_pr_block = Dict()
+    counter = 0
+    for i in range(1, stop=7, step=3)
+        for j in range(1, stop=7, step=3)
+            counter += 1
+            push!(rows, (counter, 1:9))
+            push!(columns, (1:9, counter))
+            push!(blocks, (i:i+2, j:j+2))
+ 
+            free_block = []
+            fixed_numbers = []
+            for k in range(i, stop=i+2)
+                for l in range(j, stop=j+2)
+                    if puzzle[k, l]==0
+                        push!(free_block, (k, l))
+                    else
+                        push!(fixed_numbers, puzzle[k, l])
+                    end
+                end      
+            end
+            free_cells_pr_block[(i:i+2, j:j+2)] = free_block
+            fixed_numbers_pr_block[(i:i+2, j:j+2)] = fixed_numbers
+        end
+    end
+    
+    return Indices(blocks, columns, rows, free_cells_pr_block, fixed_numbers_pr_block)
+end
+
+function initialize_board(puzzle, indices)
+    puzzle = deepcopy(puzzle)
+    for (b_i, b_j) in indices.blocks
+
+        possible_values = [v for v in 1:9 if v ∉ indices.fixed_numbers_pr_block[(b_i,b_j)]]
+    
+        for (c_i, c_j) in indices.free_cells_pr_block[(b_i, b_j)]
+            i = rand(1:length(possible_values))
+            puzzle[c_i, c_j] = possible_values[i]
+            deleteat!(possible_values, i)
+        end
+    end
+    
+    return get_state(puzzle, indices)
+end
+
+function get_energy(puzzle, indices)
+    energy = sum([sum(unique(puzzle[i, j])) for (i, j) in indices.columns])
+    energy += sum([sum(unique(puzzle[i, j])) for (i, j) in indices.rows])
+    
+    return abs(2*405 - energy)
+    
+end
+
+function get_state(puzzle, indices)
+    energy = get_energy(puzzle, indices)
+
+    return SudokuState(puzzle, energy)
+  
+end
+
+function random_block_swap(puzzle, indices)
+    puzzle = deepcopy(puzzle)
+    (b_i, b_j) = indices.blocks[rand(1:length(indices.blocks))]
+    (c_i, c_j) = rand(1:length(indices.free_cells_pr_block[(b_i, b_j)]), 2)
+    (s1_i, s1_j) = indices.free_cells_pr_block[(b_i, b_j)][c_i]
+    (s2_i, s2_j) = indices.free_cells_pr_block[(b_i, b_j)][c_j]
+    puzzle[s1_i, s1_j], puzzle[s2_i, s2_j] = puzzle[s2_i, s2_j], puzzle[s1_i, s1_j]
+
+    return puzzle
+end
+
+function run(states, indices, temp)
+    state = states[end]
+    count = 0
+    while (state.energy>0)
+        count += 1
+
+        if count%100 == 0
+            temp = rand()*rand(1:4)
+        end
+        puzzle = random_block_swap(state.puzzle, indices)
+        new_state = get_state(puzzle, indices)
+
+        energy_diff = new_state.energy - state.energy
+
+        if MathConstants.e^(-energy_diff/temp) > rand() || energy_diff <= 0
+            push!(states, new_state)
+            state = new_state
+            println(new_state)
+        end
+    end
+    
+    return state
+end
 
 puzzle = [0  0  0  0  0  0  0  9  3;
           0  0  0  5  0  0  0  0  7;
@@ -11,3 +122,41 @@ puzzle = [0  0  0  0  0  0  0  9  3;
           8  0  0  2  9  0  1  0  0;
           1  0  0  0  0  8  0  0  0;
           2  4  0  0  0  0  0  0  0;]
+
+states = []
+indices = get_indices(puzzle)
+push!(states, get_state(puzzle, indices))
+push!(states, initialize_board(puzzle, indices))
+state = run(states, indices, 0.45)
+
+println(state)
+
+#[5 7 2 4 6 1 8 9 3;
+# 4 1 9 5 8 3 2 6 7;
+# 3 6 8 9 7 2 4 1 5;
+# 9 3 4 8 3 6 5 7 2;
+# 7 8 5 1 2 9 6 4 1;
+# 6 2 1 5 4 7 9 3 8;
+# 8 5 7 2 9 4 1 2 6;
+# 1 9 3 6 3 8 7 5 4;
+# 2 4 6 7 1 5 3 8 9]
+#
+ #[5 7 2 1 6 4 8 9 3; 
+ # 3 1 4 5 8 9 2 6 7; 
+ # 6 9 8 3 7 2 4 1 5; 
+ # 4 6 1 8 3 5 9 7 2; 
+ # 7 8 5 9 2 1 6 3 4; 
+ # 9 2 3 6 4 7 5 8 1; 
+ # 8 5 7 2 9 3 1 4 6; 
+ # 1 3 6 4 5 8 7 2 9; 
+ # 2 4 9 7 1 6 3 5 8;]
+ [5 7 2 1 6 4 8 9 3;
+  3 1 4 5 8 9 2 6 7;
+  6 9 8 3 7 2 4 1 5;
+  4 6 1 8 3 5 9 7 2;
+  7 8 5 9 2 1 6 3 4;
+  9 2 3 6 4 7 5 8 1;
+  8 5 7 2 9 3 1 4 6;
+  1 3 6 4 5 8 7 2 9;
+  2 4 9 7 1 6 3 5 8]
+ 
