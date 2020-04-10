@@ -114,7 +114,7 @@ function run(states, indices, temp)
     return state
 end
 
-function mc_solve(puzzle::Vector, temp)
+function mc_solve(puzzle, temp)
     states = []
     indices = get_indices(puzzle)
     push!(states, get_state(puzzle, indices))
