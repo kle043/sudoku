@@ -96,7 +96,7 @@ function run(states, indices, temp)
         count += 1
 
         if count%100 == 0
-            temp = rand()*rand(1:4)
+            temp = rand()*rand(1:3)
             println("Changing temperature to $temp")
         end
         puzzle = random_block_swap(state.puzzle, indices)
@@ -114,6 +114,17 @@ function run(states, indices, temp)
     return state
 end
 
+function mc_solve(puzzle::Vector, temp)
+    states = []
+    indices = get_indices(puzzle)
+    push!(states, get_state(puzzle, indices))
+    push!(states, initialize_board(puzzle, indices))
+    state = run(states, indices, temp)
+
+    return states
+    
+end
+
 puzzle = [0  0  0  0  0  0  0  9  3;
           0  0  0  5  0  0  0  0  7;
           0  0  8  0  7  2  0  0  5;
@@ -124,13 +135,9 @@ puzzle = [0  0  0  0  0  0  0  9  3;
           1  0  0  0  0  8  0  0  0;
           2  4  0  0  0  0  0  0  0;]
 
-states = []
-indices = get_indices(puzzle)
-push!(states, get_state(puzzle, indices))
-push!(states, initialize_board(puzzle, indices))
-state = run(states, indices, 0.45)
+states = mc_solve(puzzle, 0.45)
 
-println(state)
+println(states[end])
 
 
 #[5 7 2 1 6 4 8 9 3;
@@ -142,4 +149,3 @@ println(state)
 # 8 5 7 2 9 3 1 4 6;
 # 1 3 6 4 5 8 7 2 9;
 # 2 4 9 7 1 6 3 5 8]
- 
