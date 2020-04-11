@@ -48,7 +48,7 @@ function  get_indices(puzzle)
 end
 
 function initialize_board(puzzle, indices)
-    puzzle = deepcopy(puzzle)
+    puzzle = copy(puzzle)
     for (b_i, b_j) in indices.blocks
 
         possible_values = [v for v in 1:9 if v ∉ indices.fixed_numbers_pr_block[(b_i,b_j)]]
@@ -79,7 +79,7 @@ function get_state(puzzle, indices)
 end
 
 function random_block_swap(puzzle, indices)
-    puzzle = deepcopy(puzzle)
+    puzzle = copy(puzzle)
     (b_i, b_j) = indices.blocks[rand(1:length(indices.blocks))]
     (c_i, c_j) = rand(1:length(indices.free_cells_pr_block[(b_i, b_j)]), 2)
     (s1_i, s1_j) = indices.free_cells_pr_block[(b_i, b_j)][c_i]
@@ -101,14 +101,14 @@ function run(states, indices, temp, random_ramp_temperature)
             println("Temperature: $temp")
             println("Move nr: $count")
             println("Missed nr: $missed_moves")
+            push!(states, state)
         end
         puzzle = random_block_swap(state.puzzle, indices)
         new_state = get_state(puzzle, indices)
 
         energy_diff = new_state.energy - state.energy
 
-        if MathConstants.e^(-energy_diff/temp) > rand() || energy_diff <= 0
-            push!(states, new_state)
+        if MathConstants.e^(-energy_diff/temp) > rand() || energy_diff <= 0 
             state = new_state
             #println("Energy: $(state.energy)")
         else
@@ -119,6 +119,7 @@ function run(states, indices, temp, random_ramp_temperature)
         end
         
     end
+    push!(states, state)
     println("Energy: $(state.energy)")
     println("Finished on move nr: $count")
     return state
