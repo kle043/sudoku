@@ -21,8 +21,8 @@ function  get_indices(puzzle)
     free_cells_pr_block = Dict()
     fixed_numbers_pr_block = Dict()
     counter = 0
-    for i in range(1, stop=7, step=3)
-        for j in range(1, stop=7, step=3)
+    for i in 1:3:7
+        for j in 1:3:7
             counter += 1
             push!(rows, (counter, 1:9))
             push!(columns, (1:9, counter))
@@ -30,8 +30,8 @@ function  get_indices(puzzle)
  
             free_block = []
             fixed_numbers = []
-            for k in range(i, stop=i+2)
-                for l in range(j, stop=j+2)
+            for k in i:i+2
+                for l in j:j+2
                     if puzzle[k, l]==0
                         push!(free_block, (k, l))
                     else
