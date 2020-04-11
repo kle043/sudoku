@@ -1,4 +1,5 @@
 # Importing packages
+using Distributed
 
 
 struct SudokuState
@@ -89,20 +90,30 @@ function random_block_swap(puzzle, indices)
     return puzzle
 end
 
-function run(states, indices, temp, random_ramp_temperature)
-    state = states[end]
+function distributed_run(states, indices, temp, random_ramp_temperature)
+    max_energy = Inf
+    nsteps = random_ramp_temperature
+    while max_energy > 0
+        futures = []
+        for state in states
+            temp = rand()*rand(1:4)
+            push!(futures, @spawnat:any run_mc(state, indices, temp, random_ramp_temperature))
+        end
+
+        states = [fetch(f) for f in futures]
+        max_energy = minimum([[s.energy for s in states]])
+
+    end
+
+    return states
+    
+end
+
+function run_mc(state, indices, temp::Real, nsteps::Int)
     count = 0
     missed_moves = 0
-    while (state.energy>0)
-        count += 1
+    for i in 1:nsteps
 
-        if count%100000==0
-            println("Energy: $(state.energy)")
-            println("Temperature: $temp")
-            println("Move nr: $count")
-            println("Missed nr: $missed_moves")
-            push!(states, state)
-        end
         puzzle = random_block_swap(state.puzzle, indices)
         new_state = get_state(puzzle, indices)
 
@@ -111,44 +122,38 @@ function run(states, indices, temp, random_ramp_temperature)
         if MathConstants.e^(-energy_diff/temp) > rand() || energy_diff <= 0 
             state = new_state
             #println("Energy: $(state.energy)")
-        else
-            missed_moves += 1
-            if missed_moves%random_ramp_temperature == 0
-                temp = rand()*rand(1:4)
-            end
         end
         
     end
-    push!(states, state)
     println("Energy: $(state.energy)")
-    println("Finished on move nr: $count")
     return state
 end
 
 function mc_solve(puzzle::Matrix, temp::Real, random_ramp_temperature::Int)
-    states = []
     indices = get_indices(puzzle)
-    push!(states, get_state(puzzle, indices))
-    push!(states, initialize_board(puzzle, indices))
-    state = run(states, indices, temp, random_ramp_temperature)
+    states = []
+    for i in 1:nworkers()
+        push!(states, initialize_board(puzzle, indices)) 
+    end
+    states = distributed_run(states, indices, temp, random_ramp_temperature)
 
     return states
     
 end
 
-#puzzle = [0  0  0  0  0  0  0  9  3;
-#          0  0  0  5  0  0  0  0  7;
-#          0  0  8  0  7  2  0  0  5;
-#          0  0  0  8  3  0  0  7  0;
-#          0  0  5  0  0  0  6  0  0;
-#          0  2  0  0  4  7  0  0  0;
-#          8  0  0  2  9  0  1  0  0;
-#          1  0  0  0  0  8  0  0  0;
-#          2  4  0  0  0  0  0  0  0;]
-#
-#states = mc_solve(puzzle, 0.45)
-#
-#println(states[end])
+puzzle = [0  0  0  0  0  0  0  9  3;
+          0  0  0  5  0  0  0  0  7;
+          0  0  8  0  7  2  0  0  5;
+          0  0  0  8  3  0  0  7  0;
+          0  0  5  0  0  0  6  0  0;
+          0  2  0  0  4  7  0  0  0;
+          8  0  0  2  9  0  1  0  0;
+          1  0  0  0  0  8  0  0  0;
+          2  4  0  0  0  0  0  0  0;]
+
+states = mc_solve(puzzle, 0.45, 100)
+
+println(states[end])
 
 
 #[5 7 2 1 6 4 8 9 3;
