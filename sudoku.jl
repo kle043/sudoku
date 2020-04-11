@@ -92,16 +92,15 @@ end
 function run(states, indices, temp, random_ramp_temperature)
     state = states[end]
     count = 0
+    missed_moves = 0
     while (state.energy>0)
         count += 1
 
-        if count%random_ramp_temperature == 0
-            temp = rand()*rand(1:4)
-        end
         if count%100000==0
             println("Energy: $(state.energy)")
             println("Temperature: $temp")
             println("Move nr: $count")
+            println("Missed nr: $missed_moves")
         end
         puzzle = random_block_swap(state.puzzle, indices)
         new_state = get_state(puzzle, indices)
@@ -112,7 +111,13 @@ function run(states, indices, temp, random_ramp_temperature)
             push!(states, new_state)
             state = new_state
             #println("Energy: $(state.energy)")
+        else
+            missed_moves += 1
+            if missed_moves%random_ramp_temperature == 0
+                temp = rand()*rand(1:4)
+            end
         end
+        
     end
     println("Energy: $(state.energy)")
     println("Finished on move nr: $count")
