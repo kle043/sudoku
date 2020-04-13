@@ -46,6 +46,6 @@ puzzle = [0  0  0  0  0  0  0  9  3;
           1  0  0  0  0  8  0  0  0;
           2  4  0  0  0  0  0  0  0;]
 
-states = mc_solve(puzzle, 0.45, 10000)
+@time states = mc_solve(puzzle, 0.45, 10000)
 
 println(states[end])
