@@ -100,7 +100,9 @@ function run_mc(state, indices, temp::Real, nsteps::Int)
 
         if MathConstants.e^(-energy_diff/temp) > rand() || energy_diff <= 0 
             state = new_state
-            #println("Energy: $(state.energy)")
+        end
+        if state.energy==0
+            break
         end
         
     end
