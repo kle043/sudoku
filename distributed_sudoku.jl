@@ -6,9 +6,9 @@ function distributed_run(states, indices, temp, random_ramp_temperature)
     nsteps = random_ramp_temperature
     while max_energy > 0
         futures = []
-        for (i, state) in enumerate(states)
+        for state in states
             temp = rand()*rand(1:4)
-            push!(futures, @spawnat :2 run_mc(state, indices, temp, random_ramp_temperature))
+            push!(futures, @spawn run_mc(state, indices, temp, random_ramp_temperature))
         end
 
         states = [fetch(f) for f in futures]
@@ -25,6 +25,8 @@ end
 function mc_solve(puzzle::Matrix, temp::Real, random_ramp_temperature::Int)
     indices = get_indices(puzzle)
     states = []
+    println("Using $(nworkers()) workers")
+
     for i in 1:nworkers()
         push!(states, initialize_board(puzzle, indices)) 
     end
@@ -44,6 +46,6 @@ puzzle = [0  0  0  0  0  0  0  9  3;
           1  0  0  0  0  8  0  0  0;
           2  4  0  0  0  0  0  0  0;]
 
-states = mc_solve(puzzle, 0.45, 100)
+states = mc_solve(puzzle, 0.45, 10000)
 
 println(states[end])
