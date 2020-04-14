@@ -1,19 +1,23 @@
 using Distributed
 @everywhere include_string(Main, $(read("utils.jl", String)), "utils.jl")
 
-function distributed_run(states, indices, temp, nsteps)
+function distributed_run(states, indices, nsteps)
     min_state = states[1]
-    nsteps = nsteps
+    tot_steps = 0
     while min_state.energy > 0
         futures = []
         for state in states
             temp = rand()*rand(1:4)
             push!(futures, @spawn run_mc(state, indices, temp, nsteps))
+            tot_steps += nsteps
         end
 
         states = [fetch(f) for f in futures]
         min_state = states[argmin([s.energy for s in states])]
-        println("Max energy $(min_state.energy)")
+        if tot_steps % 10000 == 0
+            println("Min energy = $(min_state.energy)")
+            println("Temp = $(min_state.T)")
+        end
 
     end
 
@@ -22,7 +26,7 @@ function distributed_run(states, indices, temp, nsteps)
 end
 
 
-function mc_solve(puzzle::Matrix, temp::Real, nsteps::Int)
+function mc_solve(puzzle::Matrix, nsteps::Int)
     indices = get_indices(puzzle)
     states = []
     println("Using $(nworkers()) workers")
@@ -30,7 +34,7 @@ function mc_solve(puzzle::Matrix, temp::Real, nsteps::Int)
     for i in 1:nworkers()
         push!(states, initialize_board(puzzle, indices)) 
     end
-    states = distributed_run(states, indices, temp, nsteps)
+    states = distributed_run(states, indices, nsteps)
 
     return states
     
@@ -51,7 +55,7 @@ if !isinteractive()
     display(puzzle)
     println("")
     
-    @time solution = mc_solve(puzzle, 0.45, 10000)
+    @time solution = mc_solve(puzzle, 0.45, 1000)
     
     println("Initial board:")
     display(puzzle)
