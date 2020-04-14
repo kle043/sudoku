@@ -106,7 +106,7 @@ function run_mc(state, indices, temp::Real, nsteps::Int)
         end
         
     end
-    println("Energy: $(state.energy)")
+    println("Energy: $(state.energy), Temp: $(temp)")
     return state
 end
 
