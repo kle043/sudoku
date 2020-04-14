@@ -55,7 +55,7 @@ if !isinteractive()
     display(puzzle)
     println("")
     
-    @time solution = mc_solve(puzzle, 0.45, 1000)
+    @time solution = mc_solve(puzzle, 1000)
     
     println("Initial board:")
     display(puzzle)
