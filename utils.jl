@@ -3,6 +3,7 @@
 struct SudokuState
     puzzle::Array
     energy::Number
+    T::Number
 end
 
 struct Indices
@@ -70,10 +71,10 @@ function get_energy(puzzle, indices)
     
 end
 
-function get_state(puzzle, indices)
+function get_state(puzzle, indices, T=-1.0)
     energy = get_energy(puzzle, indices)
 
-    return SudokuState(puzzle, energy)
+    return SudokuState(puzzle, energy, T)
   
 end
 
@@ -94,7 +95,7 @@ function run_mc(state, indices, temp::Real, nsteps::Int)
     for i in 1:nsteps
 
         puzzle = random_block_swap(state.puzzle, indices)
-        new_state = get_state(puzzle, indices)
+        new_state = get_state(puzzle, indices, temp)
 
         energy_diff = new_state.energy - state.energy
 
@@ -106,7 +107,6 @@ function run_mc(state, indices, temp::Real, nsteps::Int)
         end
         
     end
-    println("Energy: $(state.energy), Temp: $(temp)")
     return state
 end
 
