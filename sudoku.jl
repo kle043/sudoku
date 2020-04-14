@@ -36,25 +36,27 @@ function mc_solve(puzzle::Matrix, temp::Real, nsteps::Int)
     
 end
 
-puzzle = [0  0  0  0  0  0  0  9  3;
-          0  0  0  5  0  0  0  0  7;
-          0  0  8  0  7  2  0  0  5;
-          0  0  0  8  3  0  0  7  0;
-          0  0  5  0  0  0  6  0  0;
-          0  2  0  0  4  7  0  0  0;
-          8  0  0  2  9  0  1  0  0;
-          1  0  0  0  0  8  0  0  0;
-          2  4  0  0  0  0  0  0  0;]
-
-println("Solving:")
-display(puzzle)
-println("")
-
-@time solution = mc_solve(puzzle, 0.45, 10000)
-
-println("Initial board:")
-display(puzzle)
-println("")
-println("Solution, energy=$(solution.energy)")
-display(solution.puzzle)
-println("")
+if !isinteractive()
+    puzzle = [0  0  0  0  0  0  0  9  3;
+              0  0  0  5  0  0  0  0  7;
+              0  0  8  0  7  2  0  0  5;
+              0  0  0  8  3  0  0  7  0;
+              0  0  5  0  0  0  6  0  0;
+              0  2  0  0  4  7  0  0  0;
+              8  0  0  2  9  0  1  0  0;
+              1  0  0  0  0  8  0  0  0;
+              2  4  0  0  0  0  0  0  0;]
+    
+    println("Solving:")
+    display(puzzle)
+    println("")
+    
+    @time solution = mc_solve(puzzle, 0.45, 10000)
+    
+    println("Initial board:")
+    display(puzzle)
+    println("")
+    println("Solution, energy=$(solution.energy)")
+    display(solution.puzzle)
+    println("")
+end
