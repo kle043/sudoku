@@ -1,5 +1,5 @@
 using Distributed
-@everywhere include_string(Main, $(read("utils.jl", String)), "utils.jl")
+@everywhere include_string(Main, $(read("src/utils.jl", String)), "utils.jl")
 
 function distributed_run(states, indices, nsteps)
     min_state = states[1]

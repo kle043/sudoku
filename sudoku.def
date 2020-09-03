@@ -1,0 +1,19 @@
+Bootstrap:docker
+From:ubuntu:20.04
+Stage: devel
+
+%setup
+
+%files
+*.jl
+
+%environment
+
+%post
+    apt-get update && apt install -y julia
+    julia -e "using Pkg; pkg\"activate . \"; pkg\"instantiate\"; pkg\"precompile\"; "
+
+%runscript
+    julia
+
+%startscript
