@@ -1,5 +1,6 @@
+module Sudoku
 using Distributed
-@everywhere include_string(Main, $(read("src/utils.jl", String)), "utils.jl")
+@everywhere include_string(Main, $(read("src/Utils.jl", String)), "Utils.jl")
 
 function distributed_run(states, indices, nsteps)
     min_state = states[1]
@@ -40,7 +41,7 @@ function mc_solve(puzzle::Matrix, nsteps::Int)
     
 end
 
-if !isinteractive()
+function main()
     #golden nugget
     puzzle = [0 0 0 0 0 0 0 3 9;
               0 0 0 0 1 0 0 0 5;
@@ -64,4 +65,10 @@ if !isinteractive()
     println("Solution, energy=$(solution.energy)")
     display(solution.puzzle)
     println("")
+end
+
+end #module
+
+if !isinteractive()
+    Sudoku.main()
 end
