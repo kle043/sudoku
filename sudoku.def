@@ -2,6 +2,15 @@ Bootstrap:docker
 From: ubuntu:20.04
 Stage: devel
 
+%help
+    Singularity sudoku playground, to run use 
+
+    singularity run sudoku.sif      # that will solve golden nugget
+    singularity run sudoku.sif -p 3 # to run on 3 processes
+
+    singularity run --app jupyter sudoku.sif # in a folder where sudoku.ipynb is
+    singularity run --app jupyter-read-only  # sudoku.sif # will use the ipynb in the image
+
 %setup
 %files
     src /sudoku/src
@@ -27,6 +36,9 @@ Stage: devel
 ##############################
 # jupyter notebook
 ##############################
-%apprun jupyter
+%apprun jupyter-read-only
     cd /sudoku
     jupyter-notebook sudoku.ipynb
+
+%apprun jupyter
+    jupyter-notebook
