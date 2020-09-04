@@ -1,5 +1,6 @@
 module Sudoku
 using Distributed
+#precompile on master, the worker probably all do the precompilation concurrently which has to fail
 include("./Utils.jl")
 @everywhere include("src/Utils.jl")
 
