@@ -16,6 +16,6 @@ Stage: devel
 
 %runscript
     cd /sudoku
-    julia "$@" -e "using Pkg; pkg\"activate . \";include(\"src/Main.jl\")"
+    julia "$@" -e "@everywhere using Pkg; @everywhere pkg\"activate . \";include(\"src/Main.jl\")"
 
 %startscript

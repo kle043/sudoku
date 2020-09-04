@@ -1,5 +1,4 @@
-using Distributed
-@everywhere include("src/Sudoku.jl")
+using Sudoku
 
 function main()
     #golden nugget
