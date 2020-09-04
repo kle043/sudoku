@@ -1,19 +1,21 @@
 Bootstrap:docker
-From:ubuntu:20.04
+From: julia:1.4.1
 Stage: devel
 
 %setup
-
 %files
-*.jl
+    src /sudoku/src
+    Project.toml /sudoku/
 
 %environment
+    APPNAME="sudoku"
 
 %post
-    apt-get update && apt install -y julia
+    cd sudoku
     julia -e "using Pkg; pkg\"activate . \"; pkg\"instantiate\"; pkg\"precompile\"; "
 
 %runscript
-    julia -e "using Pkg; pkg\"activate . \";include(\"src/Main.jl\")"
+    cd /sudoku
+    julia "$@" -e "using Pkg; pkg\"activate . \";include(\"src/Main.jl\")"
 
 %startscript
