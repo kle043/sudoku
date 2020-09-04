@@ -13,6 +13,7 @@ function main()
               4 0 0 7 0 0 0 0 0;]
     
     println("Solving:")
+    println("Golden Nugget")
     display(puzzle)
     println("")
     
