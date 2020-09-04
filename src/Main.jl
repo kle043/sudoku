@@ -16,7 +16,7 @@ function main()
     display(puzzle)
     println("")
     
-    @time solution = Sudoku.mc_solve(puzzle, 1000)
+    @time solution = Sudoku.mc_solve(puzzle, 1500)
     
     println("Initial board:")
     display(puzzle)
