@@ -1,16 +1,19 @@
 Bootstrap:docker
-From: julia:1.4.1
+From: ubuntu:20.04
 Stage: devel
 
 %setup
 %files
     src /sudoku/src
     Project.toml /sudoku/
+    sudoku.ipynb /sudoku/
 
 %environment
     APPNAME="sudoku"
 
 %post
+    apt update && apt install -y wget julia python3-pip
+    python3 -m pip install jupyter
     cd sudoku
     julia -e "using Pkg; pkg\"activate . \"; pkg\"instantiate\"; pkg\"precompile\"; "
 
@@ -19,3 +22,11 @@ Stage: devel
     julia "$@" -e "@everywhere using Pkg; @everywhere pkg\"activate . \";include(\"src/Main.jl\")"
 
 %startscript
+
+
+##############################
+# jupyter notebook
+##############################
+%apprun jupyter
+    cd /sudoku
+    jupyter-notebook sudoku.ipynb
