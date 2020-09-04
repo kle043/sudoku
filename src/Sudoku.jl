@@ -1,6 +1,5 @@
 module Sudoku
 using Distributed
-using Base
 include("./Utils.jl")
 @everywhere include("src/Utils.jl")
 
