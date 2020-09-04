@@ -1,6 +1,8 @@
 module Sudoku
 using Distributed
-@everywhere include_string(Main, $(read("src/Utils.jl", String)), "Utils.jl")
+using Base
+include("./Utils.jl")
+@everywhere include("src/Utils.jl")
 
 function distributed_run(states, indices, nsteps)
     min_state = states[1]
@@ -68,7 +70,3 @@ function main()
 end
 
 end #module
-
-if !isinteractive()
-    Sudoku.main()
-end
