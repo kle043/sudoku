@@ -3,13 +3,13 @@
 Brute force MC for solving difficult eastern sudoku. There are much more elegant solutions out there, but a
 solution is found eventually;)
 
-To build container
+# Build
 
 ``` bash
 sudo singularity build sudoku.sif sudoku.def
 ```
 
-to run 
+# Run 
 
 ``` bash
 singularity run sudoku.sif
